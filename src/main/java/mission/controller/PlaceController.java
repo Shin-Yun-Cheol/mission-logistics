@@ -1,4 +1,3 @@
-// src/main/java/mission/controller/PlaceController.java
 package mission.controller;
 
 import mission.model.LatLng;
@@ -6,6 +5,7 @@ import mission.model.Place;
 import mission.model.Route;
 import mission.service.PlaceService;
 import mission.util.InputParser;
+import mission.util.TravelTimeCalculator;   // ✅ 추가
 import mission.view.InputView;
 import mission.view.OutputView;
 
@@ -36,7 +36,7 @@ public class PlaceController {
             return;
         }
 
-        // 3) 출발/도착 각각 Place 조회
+        // 출발/도착 각각 Place 조회
         Optional<Place> depOpt = service.findPlaceByName(route.departure());
         if (depOpt.isEmpty()) {
             outputView.printNameNotFound(route.departure());
@@ -51,7 +51,7 @@ public class PlaceController {
         Place dep = depOpt.get();
         Place dst = dstOpt.get();
 
-        // 4) 각 Place의 좌표 조회
+        // 각 Place의 좌표 조회
         Optional<LatLng> depLatLngOpt = service.findLatLngByPlaceId(dep.id());
         if (depLatLngOpt.isEmpty()) {
             outputView.printCoordNotFound(dep.name(), dep.id());
@@ -66,8 +66,11 @@ public class PlaceController {
         LatLng depLL = depLatLngOpt.get();
         LatLng dstLL = dstLatLngOpt.get();
 
-        // 5) 출력 (두 장소 모두)
-        outputView.printFound(dep.name(), dep.id(), dep.address(), depLL.latitude(), depLL.longitude());
-        outputView.printFound(dst.name(), dst.id(), dst.address(), dstLL.latitude(), dstLL.longitude());
+
+        // 이동 시간 계산(60km/h) → OutputView에서 h:nn으로 포맷 출력
+        double distanceKm = TravelTimeCalculator.calculateDistanceKm(depLL, dstLL);
+        int totalMinutes = TravelTimeCalculator.estimateTravelMinutes(distanceKm, 60.0);
+
+        outputView.printTravelTime(totalMinutes, 60.0);
     }
 }
