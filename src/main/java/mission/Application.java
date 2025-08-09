@@ -1,9 +1,8 @@
 package mission;
 
-import api.Console;
-
 public class Application {
     public static void main(String[] args) {
-        //TODO: 미션 구현
+        AppConfig config = new AppConfig("place.csv", "position.csv");
+        config.placeController().runOnce();
     }
 }
