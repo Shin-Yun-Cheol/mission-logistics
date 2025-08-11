@@ -35,7 +35,7 @@ public class CsvCoordinateRepository implements CoordinateRepository {
                      new BufferedReader(new InputStreamReader(resourceInputStream, StandardCharsets.UTF_8))) {
 
             bufferedReader.lines()
-                    .skip(1) // header: place_id,lat,lng
+                    .skip(1)
                     .map(line -> line.split(",", 3))
                     .forEach(columns -> {
                         if (columns.length < 3)

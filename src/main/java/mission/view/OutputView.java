@@ -3,11 +3,6 @@ package mission.view;
 
 public class OutputView {
 
-    public void printFound(String name, int id, String address, double latitude, double longitude) {
-        System.out.printf("[FOUND] name=%s, id=%d, address=%s, lat=%.7f, lng=%.7f%n",
-                name, id, address, latitude, longitude);
-    }
-
     public void printNameNotFound(String name) {
         System.out.println("[NOT FOUND] place name: " + name);
     }

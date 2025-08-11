@@ -8,7 +8,6 @@ public final class TravelTimeCalculator {
 
     private TravelTimeCalculator() {}
 
-    /** Haversine 공식으로 두 좌표 간 대권거리(km) 계산 */
     public static double calculateDistanceKm(LatLng from, LatLng to) {
         double lat1Rad = Math.toRadians(from.latitude());
         double lon1Rad = Math.toRadians(from.longitude());
@@ -25,20 +24,13 @@ public final class TravelTimeCalculator {
         return EARTH_RADIUS_KM * c;
     }
 
-    /** 거리(km)와 속도(km/h)로 총 소요시간(분)을 반올림하여 반환 */
     public static int estimateTravelMinutes(double distanceKm, double speedKmh) {
         if (speedKmh <= 0.0) {
             throw new IllegalArgumentException("속도는 0보다 커야 합니다.");
         }
         double hours = distanceKm / speedKmh;
         long roundedMinutes = Math.round(hours * 60.0);
-        // int로 안전 변환 (일반 범위에서는 오버플로우 우려 없음)
         return (int) roundedMinutes;
     }
 
-    /** 편의 메서드: 좌표와 속도로 직접 분(minute) 계산 */
-    public static int estimateTravelMinutes(LatLng from, LatLng to, double speedKmh) {
-        double distanceKm = calculateDistanceKm(from, to);
-        return estimateTravelMinutes(distanceKm, speedKmh);
-    }
 }

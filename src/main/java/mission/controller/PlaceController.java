@@ -5,13 +5,16 @@ import mission.model.Place;
 import mission.model.Route;
 import mission.service.PlaceService;
 import mission.util.InputParser;
-import mission.util.TravelTimeCalculator;   // ✅ 추가
+import mission.util.TravelTimeCalculator;
 import mission.view.InputView;
 import mission.view.OutputView;
 
 import java.util.Optional;
 
 public class PlaceController {
+
+    private static final double DEFAULT_SPEED_KMH = 60.0;
+
     private final PlaceService service;
     private final InputView inputView;
     private final OutputView outputView;
@@ -23,54 +26,54 @@ public class PlaceController {
     }
 
     public void runOnce() {
-        // 1) 입력 받기 ("출발지,도착지")
         String raw = inputView.read();
 
-        // 2) 파싱 -> Route(departure, destination)
-        Route route;
-        try {
-            route = InputParser.parseRoute(raw);
-        } catch (IllegalArgumentException e) {
-            // 형식 오류 메시지 그대로 보여주고 종료
-            System.out.println(e.getMessage());
-            return;
-        }
+        Optional<Route> routeOpt = parseRouteOrReport(raw);
+        if (routeOpt.isEmpty()) return;
+        Route route = routeOpt.get();
 
-        // 출발/도착 각각 Place 조회
-        Optional<Place> depOpt = service.findPlaceByName(route.departure());
-        if (depOpt.isEmpty()) {
-            outputView.printNameNotFound(route.departure());
-            return;
-        }
-        Optional<Place> dstOpt = service.findPlaceByName(route.destination());
-        if (dstOpt.isEmpty()) {
-            outputView.printNameNotFound(route.destination());
-            return;
-        }
+        Optional<Resolved> depOpt = resolvePlaceAndCoordOrReport(route.departure());
+        if (depOpt.isEmpty()) return;
 
-        Place dep = depOpt.get();
-        Place dst = dstOpt.get();
+        Optional<Resolved> dstOpt = resolvePlaceAndCoordOrReport(route.destination());
+        if (dstOpt.isEmpty()) return;
 
-        // 각 Place의 좌표 조회
-        Optional<LatLng> depLatLngOpt = service.findLatLngByPlaceId(dep.id());
-        if (depLatLngOpt.isEmpty()) {
-            outputView.printCoordNotFound(dep.name(), dep.id());
-            return;
-        }
-        Optional<LatLng> dstLatLngOpt = service.findLatLngByPlaceId(dst.id());
-        if (dstLatLngOpt.isEmpty()) {
-            outputView.printCoordNotFound(dst.name(), dst.id());
-            return;
-        }
+        LatLng depLL = depOpt.get().latLng();
+        LatLng dstLL = dstOpt.get().latLng();
 
-        LatLng depLL = depLatLngOpt.get();
-        LatLng dstLL = dstLatLngOpt.get();
-
-
-        // 이동 시간 계산(60km/h) → OutputView에서 h:nn으로 포맷 출력
         double distanceKm = TravelTimeCalculator.calculateDistanceKm(depLL, dstLL);
-        int totalMinutes = TravelTimeCalculator.estimateTravelMinutes(distanceKm, 60.0);
+        int totalMinutes = TravelTimeCalculator.estimateTravelMinutes(distanceKm, DEFAULT_SPEED_KMH);
 
-        outputView.printTravelTime(totalMinutes, 60.0);
+        outputView.printTravelTime(totalMinutes, DEFAULT_SPEED_KMH);
     }
+
+    /** 입력 문자열을 Route로 파싱하고 실패 시 메시지를 출력합니다. */
+    private Optional<Route> parseRouteOrReport(String raw) {
+        try {
+            return Optional.of(InputParser.parseRoute(raw));
+        } catch (IllegalArgumentException e) {
+            System.out.println(e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    /** 장소 이름을 Place와 LatLng까지 해석하고, 중간 실패 시 적절한 메시지를 출력합니다. */
+    private Optional<Resolved> resolvePlaceAndCoordOrReport(String placeName) {
+        Optional<Place> placeOpt = service.findPlaceByName(placeName);
+        if (placeOpt.isEmpty()) {
+            outputView.printNameNotFound(placeName);
+            return Optional.empty();
+        }
+        Place place = placeOpt.get();
+
+        Optional<LatLng> latLngOpt = service.findLatLngByPlaceId(place.id());
+        if (latLngOpt.isEmpty()) {
+            outputView.printCoordNotFound(place.name(), place.id());
+            return Optional.empty();
+        }
+        return Optional.of(new Resolved(place, latLngOpt.get()));
+    }
+
+    /** 내부 전달 객체: 조회된 Place와 좌표를 함께 보관 */
+    private record Resolved(Place place, LatLng latLng) {}
 }

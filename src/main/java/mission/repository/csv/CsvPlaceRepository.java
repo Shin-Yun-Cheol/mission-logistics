@@ -36,8 +36,8 @@ public class CsvPlaceRepository implements PlaceRepository {
                      new BufferedReader(new InputStreamReader(resourceInputStream, StandardCharsets.UTF_8))) {
 
             bufferedReader.lines()
-                    .skip(1) // header: id,name,address
-                    .map(line -> line.split(",", 3)) // address에 콤마가 있어도 최대 3조각까지만 분리
+                    .skip(1)
+                    .map(line -> line.split(",", 3))
                     .forEach(columns -> {
                         if (columns.length < 3)
                             return;

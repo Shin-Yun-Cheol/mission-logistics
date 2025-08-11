@@ -11,8 +11,8 @@ import mission.view.OutputView;
 
 public class AppConfig {
 
-    private final String placesResource;      // 예: "place.csv"
-    private final String coordinatesResource; // 예: "coordinates.csv"
+    private final String placesResource;
+    private final String coordinatesResource;
 
     public AppConfig(String placesResource, String coordinatesResource) {
         this.placesResource = placesResource;
