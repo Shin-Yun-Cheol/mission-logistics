@@ -31,7 +31,7 @@ public class DeliveryController {
 
             String trimmed = raw.trim();
 
-            if (trimmed.isEmpty()) {
+            if (trimmed.isEmpty() || trimmed.equalsIgnoreCase("exit")) {
                 break;
             }
 
