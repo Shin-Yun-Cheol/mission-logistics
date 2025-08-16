@@ -1,10 +1,12 @@
 package mission;
 
+import mission.controller.DeliveryController;
 import mission.controller.PlaceController;
 import mission.repository.CoordinateRepository;
 import mission.repository.PlaceRepository;
 import mission.repository.csv.CsvCoordinateRepository;
 import mission.repository.csv.CsvPlaceRepository;
+import mission.service.DeliveryService;
 import mission.service.PlaceService;
 import mission.view.InputView;
 import mission.view.OutputView;
@@ -31,7 +33,8 @@ public class AppConfig {
     public PlaceService placeService() {
         return new PlaceService(placeRepository(), coordinateRepository());
     }
-
+    public DeliveryService deliveryService() { return new DeliveryService(placeService(), 30.0);
+    }
     // View
     public InputView inputView() { return new InputView(); }
     public OutputView outputView() { return new OutputView(); }
@@ -39,5 +42,7 @@ public class AppConfig {
     // Controller
     public PlaceController placeController() {
         return new PlaceController(placeService(), inputView(), outputView());
+    }
+    public DeliveryController deliveryController() { return new DeliveryController(deliveryService(), inputView(), outputView());
     }
 }
