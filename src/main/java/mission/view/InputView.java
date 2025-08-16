@@ -11,5 +11,12 @@ public class InputView {
 
         return departure +"," + destination;
     }
+
+    public String readDelivery() {
+        System.out.println("배송 정보를 입력해 주세요. ex)봉화군청-숭실대학교 정보과학관(박호건)");
+        System.out.print("> ");
+
+        return Console.readLine();
+    }
 }
 
