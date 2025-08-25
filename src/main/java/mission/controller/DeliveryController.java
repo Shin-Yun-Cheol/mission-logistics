@@ -2,6 +2,7 @@ package mission.controller;
 
 import mission.exception.MissionException;
 import mission.model.DeliveryOrder;
+import mission.repository.OrderLog;
 import mission.service.DeliveryService;
 import mission.util.InputParser;
 import mission.view.InputView;
@@ -16,14 +17,16 @@ public class DeliveryController {
     private final InputView inputView;
     private final OutputView outputView;
     private final AtomicInteger nextId = new AtomicInteger(0);
+    private final OrderLog orderLog;
 
     // 동시 실행 제한: 최대 5개
     private final Semaphore capacity = new Semaphore(5, true);
 
-    public DeliveryController(DeliveryService deliveryService, InputView inputView, OutputView outputView) {
+    public DeliveryController(DeliveryService deliveryService, InputView inputView, OutputView outputView, OrderLog orderLog) {
         this.deliveryService = deliveryService;
         this.inputView = inputView;
         this.outputView = outputView;
+        this.orderLog = orderLog;
     }
 
     // 여러 배송을 연달아 입력받아 각각 스레드로 처리
@@ -58,6 +61,8 @@ public class DeliveryController {
                         // 실제 시작 시에만 예상시간 계산/출력
                         int minutes = deliveryService.estimateMinutes(order.departure(), order.destination());
                         outputView.printStarted(id, minutes);
+
+                        orderLog.append(id, order.customer(), order.departure(), order.destination(), minutes);
 
                         int delaySec = deliveryService.toRealSeconds(minutes);
                         Thread.sleep(delaySec * 1000L);
