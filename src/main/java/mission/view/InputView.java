@@ -18,5 +18,24 @@ public class InputView {
 
         return Console.readLine();
     }
+
+    public void showMainMenu() {
+        System.out.println();
+        System.out.println("[메뉴] 1: 주문  |  2: 조회  |  0: 종료");
+        System.out.print("> ");
+    }
+
+    public int readMenuSelection() {
+        String s = Console.readLine();
+        if (s == null) return -1;
+        try { return Integer.parseInt(s.trim()); }
+        catch (NumberFormatException e) { return -1; }
+    }
+
+    public String readSearchName() {
+        System.out.println("로그를 찾을 주문자를 검색해 주세요. ");
+        System.out.print("> ");
+        return Console.readLine();
+    }
 }
 

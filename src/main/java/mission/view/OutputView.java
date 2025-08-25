@@ -1,5 +1,7 @@
 package mission.view;
 
+import java.util.List;
+
 public class OutputView {
 
     public void printError(String message) {
@@ -26,4 +28,16 @@ public class OutputView {
         System.out.printf("배송이 완료되었습니다. (id: %d)%n", id);
     }
 
+    public void printSearchHeader() {
+        System.out.println();
+        System.out.println("주문 id |주문자        |배송 시작 장소      |배송 도착 장소      |소요 시간      |");
+    }
+    public void printSearchRows(List<String> rows) {
+        if (rows == null || rows.isEmpty()) {
+            System.out.println("(검색 결과가 없습니다)");
+            return;
+        }
+        for (String row : rows)
+            System.out.println(row);
+    }
 }
